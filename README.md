@@ -1,6 +1,9 @@
-# 🧠 Dynamic Knowledge Dashboard
+# Dynamic Knowledge Dashboard
 
-A Python automation tool that **scrapes online content**, **summarizes text**, **analyzes keywords**, and **visualizes insights** — all saved automatically in timestamped folders.
+This is a Python/Streamlit app that scrapes, summarizes, and analyzes articles for any topic.
+
+🌐 **Try the app online:** [Open Dashboard](https://kidotih-dynamic-knowledge-dashboard-app-16krab.streamlit.app)
+
 
 ## 🚀 Features
 - Web scraping and text summarization  
