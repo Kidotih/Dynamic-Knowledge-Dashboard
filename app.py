@@ -44,7 +44,7 @@ if st.button("Run Dashboard"):
                     plot_path = plot_keywords(keywords, output_dir=data_dir)
                     st.image(plot_path, caption="Keyword Trends", use_column_width=True)
 
-            with st.spinner("💾 Saving reports..."):
+            with st.spinner("💾 Saving report..."):
                 save_reports(articles, keywords, output_dir=data_dir)
 
             st.success("✅ Dashboard run complete!")
