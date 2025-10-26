@@ -2,22 +2,21 @@
 import re
 import heapq
 import nltk
-
-# Download NLTK resources (only needed once)
-nltk.download("punkt", quiet=True)
-nltk.download("stopwords", quiet=True)
-
 from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize, word_tokenize
 
+# Ensure NLTK resources are downloaded only once
+nltk.download("punkt", quiet=True)
+nltk.download("stopwords", quiet=True)
+
 def summarize_text(text, max_sentences=3):
     if not text or len(text.split()) < 50:
-        return text
+        return text  # Return original if too short
 
     stop_words = set(stopwords.words("english"))
     words = word_tokenize(text.lower())
 
-    # Word frequency
+    # Calculate word frequency
     freq = {}
     for word in words:
         if word.isalpha() and word not in stop_words:
@@ -28,7 +27,7 @@ def summarize_text(text, max_sentences=3):
     for w in freq:
         freq[w] /= max_freq
 
-    # Sentence scoring
+    # Score sentences
     sentences = sent_tokenize(text)
     scores = {}
     for sent in sentences:
@@ -51,4 +50,3 @@ def summarize_articles(articles):
             "summary": summary
         })
     return summarized
-
