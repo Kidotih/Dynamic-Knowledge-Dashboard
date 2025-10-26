@@ -10,7 +10,7 @@ A Python automation tool that **scrapes online content**, **summarizes text**, *
 
 ## ⚙️ Setup
 ```bash
-git clone https://github.com/YOUR-USERNAME/dynamic-knowledge-dashboard.git
+git clone https://github.com/Kidotih/dynamic-knowledge-dashboard.git
 cd dynamic-knowledge-dashboard
 python -m venv venv
 source venv/Scripts/activate   # Windows
