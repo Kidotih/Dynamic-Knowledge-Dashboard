@@ -2,25 +2,26 @@
 from collections import Counter
 import re
 import nltk
-
-# Make sure NLTK data is ready
-nltk.download("stopwords", quiet=True)
 from nltk.corpus import stopwords
+
+# Make sure NLTK data is available
+nltk.download("stopwords", quiet=True)
 
 STOPWORDS = set(stopwords.words("english"))
 
 def extract_keywords(articles, top_n=10):
-    # Combine all summaries
+    """Extract top keywords from a list of article summaries."""
+    # Combine all summaries into one text
     text = " ".join(a.get("summary", "") for a in articles)
 
-    # Clean and split text
+    # Clean and split words (only alphabetic words with 4+ letters)
     words = re.findall(r"\b[a-zA-Z]{4,}\b", text.lower())
     words = [w for w in words if w not in STOPWORDS]
 
     # Count most common words
     common = Counter(words).most_common(top_n)
 
-    # Fallback if empty
+    # Fallback keywords if no data
     if not common:
         common = [("data", 1), ("analysis", 1), ("python", 1)]
 
@@ -29,3 +30,8 @@ def extract_keywords(articles, top_n=10):
         print(f"  - {word}: {freq}")
 
     return common
+
+
+def analyze_keywords(articles, top_n=10):
+    """Alias for extract_keywords (used in other scripts)."""
+    return extract_keywords(articles, top_n)
