@@ -1,10 +1,20 @@
 import schedule
 import time
-from main import run_dashboard
+import subprocess
+import datetime
 
-schedule.every().day.at("09:00").do(run_dashboard)
+def run_dashboard():
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"\n🕒 Running Dynamic Knowledge Dashboard at {timestamp}...\n")
+    subprocess.run(["python", "main.py"], check=True)
+    print("\n✅ Dashboard run complete.\n")
 
-print("Scheduler started. Running daily at 09:00...")
+# Schedule the dashboard to run once per day at 08:00 AM
+schedule.every().day.at("08:00").do(run_dashboard)
+
+print("📅 Scheduler is running... (Ctrl + C to stop)")
+
 while True:
     schedule.run_pending()
     time.sleep(60)
+
