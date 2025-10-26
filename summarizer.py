@@ -4,6 +4,8 @@ import heapq
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize, word_tokenize
+from summarizer import summarize_articles
+
 
 # Ensure NLTK resources are downloaded only once
 nltk.download("punkt", quiet=True)
