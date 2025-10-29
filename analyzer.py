@@ -15,10 +15,12 @@ from collections import Counter
 import nltk
 
 # Ensure required NLTK data is available (quiet downloads)
+
 nltk.download("punkt", quiet=True)
-nltk.download("stopwords", quiet=True)
+nltk.download("punkt_tab", quiet=True)   
 nltk.download("wordnet", quiet=True)
 nltk.download("omw-1.4", quiet=True)
+
 
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
