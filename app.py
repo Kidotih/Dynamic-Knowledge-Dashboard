@@ -5,11 +5,10 @@ import datetime
 import urllib.parse
 
 from scraper import scrape_articles
-from summarizer import summarize_articles
+from summarizer import summarize_articles  # ✅ includes sentiment now
 from analyzer import analyze_keywords
 from visualizer import plot_keywords, plot_sentiments
 from reporter import save_report
-from textblob import TextBlob
 
 # -------------------------------
 # Streamlit App Config
@@ -21,8 +20,7 @@ st.set_page_config(
 )
 
 st.title("🧠 Dynamic Knowledge Dashboard")
-st.caption("Scrape, summarize, and visualize trending topics — now with sentiment insight.")
-
+st.caption("Scrape, summarize, and visualize trending topics — now smarter and faster.")
 st.divider()
 
 # -------------------------------
@@ -53,36 +51,18 @@ if run_dashboard:
             st.warning("No articles found for this topic.")
             st.stop()
 
-        # 2️⃣ Summarizing
-        with st.spinner("🧾 Summarizing articles..."):
+        # 2️⃣ Summarizing + Sentiment Analysis (done together)
+        with st.spinner("🧾 Summarizing and analyzing sentiment..."):
             summaries = summarize_articles(articles)
 
-        # 3️⃣ Sentiment Analysis
-        with st.spinner("💭 Analyzing sentiment..."):
-            for item in summaries:
-                summary_text = item.get("summary", "")
-                if summary_text:
-                    blob = TextBlob(summary_text)
-                    polarity = blob.sentiment.polarity
-                    if polarity > 0.1:
-                        sentiment = "😊 Positive"
-                    elif polarity < -0.1:
-                        sentiment = "☹️ Negative"
-                    else:
-                        sentiment = "😐 Neutral"
-                    item["sentiment"] = sentiment
-                    item["polarity"] = round(polarity, 3)
-                else:
-                    item["sentiment"] = "N/A"
-                    item["polarity"] = 0.0
-
-        # 4️⃣ Keyword Extraction
+        # 3️⃣ Keyword Extraction
         with st.spinner("🔎 Extracting keywords..."):
             keywords = analyze_keywords(summaries)
 
-        # 5️⃣ Display Articles
+        # 4️⃣ Display Articles
         st.divider()
         st.subheader("📰 Latest Articles")
+
         for article in summaries:
             title = article.get("title", "Untitled")
             url = article.get("url", "#")
@@ -96,7 +76,7 @@ if run_dashboard:
                 st.write(summary)
             st.markdown("---")
 
-        # 6️⃣ Keyword Visualization
+        # 5️⃣ Keyword Visualization
         if keywords:
             st.subheader("🔠 Top Keywords Extracted")
             cols = st.columns(2)
@@ -115,7 +95,7 @@ if run_dashboard:
         else:
             st.warning("No meaningful keywords found.")
 
-        # 7️⃣ Save Report
+        # 6️⃣ Save Report
         with st.spinner("💾 Saving report..."):
             save_report(summaries, keywords, output_dir=data_dir)
 
