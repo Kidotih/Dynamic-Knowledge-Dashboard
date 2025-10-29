@@ -10,3 +10,5 @@ reportlab
 feedparser
 supabase
 python-dotenv
+seaborn
+plotly
