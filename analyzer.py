@@ -5,41 +5,56 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-# Ensure required NLTK data
-nltk.download("punkt", quiet=True)
-nltk.download("punkt_tab", quiet=True)
-nltk.download("stopwords", quiet=True)
-nltk.download("wordnet", quiet=True)
-nltk.download("averaged_perceptron_tagger", quiet=True)
-nltk.download("omw-1.4", quiet=True)
+# -----------------------------------------
+# Safe NLTK data initialization
+# -----------------------------------------
+def safe_download(package):
+    """Download NLTK resource safely (skip if already available)."""
+    try:
+        nltk.data.find(package)
+    except LookupError:
+        nltk.download(package.split("/")[-1], quiet=True)
+
+# Ensure essential resources
+safe_download("tokenizers/punkt")
+safe_download("corpora/stopwords")
+safe_download("corpora/wordnet")
+safe_download("taggers/averaged_perceptron_tagger_eng")
 
 STOPWORDS = set(stopwords.words("english"))
 lemmatizer = WordNetLemmatizer()
 
 def extract_keywords(articles, top_n=10):
-    """Enhanced keyword extractor using lemmatization and POS tagging."""
-    # Combine titles and summaries
+    """Enhanced keyword extractor with safe fallbacks."""
+    # Combine article titles + summaries
     combined = " ".join(
         f"{a.get('title', '')} {a.get('summary', '')}" for a in articles
     )
 
-    # Tokenize and clean text
+    if not combined.strip():
+        return [("data", 3), ("analysis", 2), ("python", 1)]
+
+    # Tokenize and clean
     tokens = nltk.word_tokenize(combined.lower())
-    tokens = [t for t in tokens if re.match(r"^[a-z]{3,}$", t)]  # only alphabetic
+    tokens = [t for t in tokens if re.match(r"^[a-z]{3,}$", t)]
     tokens = [t for t in tokens if t not in STOPWORDS]
 
     # Lemmatize
     tokens = [lemmatizer.lemmatize(t) for t in tokens]
 
-    # Keep only nouns (better keyword candidates)
-    tagged = nltk.pos_tag(tokens)
-    nouns = [word for word, pos in tagged if pos.startswith("NN")]
+    # POS tagging (safe)
+    try:
+        tagged = nltk.pos_tag(tokens)
+        nouns = [word for word, pos in tagged if pos.startswith("NN")]
+    except LookupError:
+        print("⚠️ POS tagger not available. Using raw tokens instead.")
+        nouns = tokens
 
-    # Count most common words
+    # Count top words
     common = Counter(nouns).most_common(top_n)
 
     if not common:
-        common = [("data", 3), ("ai", 2), ("learning", 1)]
+        common = [("data", 2), ("ai", 2), ("learning", 1)]
 
     print("\nTop keywords found:")
     for word, freq in common:
@@ -47,6 +62,7 @@ def extract_keywords(articles, top_n=10):
 
     return common
 
+
 def analyze_keywords(articles, top_n=10):
-    """Alias for extract_keywords (used elsewhere)."""
+    """Alias for extract_keywords."""
     return extract_keywords(articles, top_n)
