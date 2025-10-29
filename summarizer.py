@@ -5,17 +5,37 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from textblob import TextBlob
 import re
 import heapq
+import streamlit as st
 
-# Download NLTK data
-nltk.download("punkt", quiet=True)
-nltk.download("stopwords", quiet=True)
+# -----------------------------------------
+# Ensure NLTK resources at runtime
+# -----------------------------------------
+@st.cache_resource
+def setup_nltk():
+    resources = {
+        "punkt": "tokenizers/punkt",
+        "stopwords": "corpora/stopwords"
+    }
+    for package, path in resources.items():
+        try:
+            nltk.data.find(path)
+        except LookupError:
+            nltk.download(package, quiet=True)
 
+setup_nltk()
+
+# -----------------------------------------
+# Text Cleaning
+# -----------------------------------------
 def clean_text(text):
     """Remove HTML tags and normalize whitespace."""
     text = re.sub(r"<.*?>", "", text)
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
+# -----------------------------------------
+# Summarization
+# -----------------------------------------
 def summarize_text(text, max_sentences=3):
     """Generate a concise summary from text using word frequency."""
     text = clean_text(text)
@@ -47,11 +67,10 @@ def summarize_text(text, max_sentences=3):
     summary_sents = heapq.nlargest(max_sentences, scores, key=scores.get)
     return " ".join(summary_sents)
 
+# -----------------------------------------
+# Summarize Articles with Sentiment
+# -----------------------------------------
 def summarize_articles(articles):
-    """
-    Summarize and analyze sentiment for each article.
-    Returns list of dicts: [{title, summary, sentiment, polarity, url}]
-    """
     summarized = []
 
     for article in articles:
