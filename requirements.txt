@@ -7,3 +7,4 @@ nltk
 lxml
 textblob
 reportlab
+feedparser

@@ -1,45 +1,39 @@
+# scraper.py
 import requests
 from bs4 import BeautifulSoup
+import feedparser
 
 def scrape_articles(topic, limit=10):
     """
-    Fetches recent news articles related to a topic.
-    Returns a list of dicts: [{title, url, content}]
+    Fetch recent articles related to a topic from Google News RSS feed.
+    Returns a list of dicts with {title, url, content, summary}.
     """
-    articles = []
     query = topic.replace(" ", "+")
-    url = f"https://news.google.com/search?q={query}&hl=en&gl=US&ceid=US:en"
+    feed_url = f"https://news.google.com/rss/search?q={query}"
 
-    headers = {"User-Agent": "Mozilla/5.0"}
-    res = requests.get(url, headers=headers)
+    articles = []
+    feed = feedparser.parse(feed_url)
 
-    if res.status_code != 200:
-        print(f"⚠️ Failed to fetch articles for {topic}")
-        return []
+    for entry in feed.entries[:limit]:
+        title = entry.title
+        url = entry.link
+        summary = entry.get("summary", "")
 
-    soup = BeautifulSoup(res.text, "html.parser")
-    news_cards = soup.select("article")
-
-    for card in news_cards[:limit]:
-        title_el = card.select_one("h3")
-        if not title_el:
-            continue
-
-        title = title_el.get_text()
-        link_tag = title_el.find("a")
-        url = f"https://news.google.com{link_tag['href'][1:]}" if link_tag else "#"
-
-        # Fetch article content preview
-        snippet = ""
-        para = card.find("span")
-        if para:
-            snippet = para.get_text()
+        # Try to fetch full text from the article URL
+        try:
+            response = requests.get(url, timeout=5)
+            soup = BeautifulSoup(response.text, "html.parser")
+            paragraphs = [p.get_text() for p in soup.find_all("p")]
+            content = " ".join(paragraphs)
+        except Exception:
+            content = summary or ""
 
         articles.append({
             "title": title,
             "url": url,
-            "content": snippet
+            "summary": summary,
+            "content": content
         })
 
-    print(f"✅ Scraped {len(articles)} articles for topic: {topic}")
+    print(f"✅ Fetched {len(articles)} articles for topic: {topic}")
     return articles
