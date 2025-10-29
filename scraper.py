@@ -1,43 +1,45 @@
 import requests
-from bs4 import BeautifulSoup, FeatureNotFound
+from bs4 import BeautifulSoup
 
-def scrape_articles(topic):
+def scrape_articles(topic, limit=10):
     """
-    Fetch latest news articles from Google News RSS for a given topic.
-    Returns a list of dicts: [{"title": ..., "content": ..., "url": ...}, ...]
+    Fetches recent news articles related to a topic.
+    Returns a list of dicts: [{title, url, content}]
     """
-    rss_url = f"https://news.google.com/rss/search?q={topic}"
     articles = []
+    query = topic.replace(" ", "+")
+    url = f"https://news.google.com/search?q={query}&hl=en&gl=US&ceid=US:en"
 
-    try:
-        response = requests.get(rss_url, timeout=10)
-        response.raise_for_status()
+    headers = {"User-Agent": "Mozilla/5.0"}
+    res = requests.get(url, headers=headers)
 
-        # Try XML parser first, fallback to html.parser if not available
-        try:
-            soup = BeautifulSoup(response.content, "xml")
-        except FeatureNotFound:
-            soup = BeautifulSoup(response.content, "html.parser")
+    if res.status_code != 200:
+        print(f"⚠️ Failed to fetch articles for {topic}")
+        return []
 
-        items = soup.find_all("item")
+    soup = BeautifulSoup(res.text, "html.parser")
+    news_cards = soup.select("article")
 
-        for item in items[:5]:  # Limit to top 5
-            title = item.title.text if item.title else "No title"
-            description = item.description.text if item.description else "No description"
-            link = item.link.text if item.link else ""
+    for card in news_cards[:limit]:
+        title_el = card.select_one("h3")
+        if not title_el:
+            continue
 
-            articles.append({
-                "title": title,
-                "summary": description,
-                "url": link
-            })
+        title = title_el.get_text()
+        link_tag = title_el.find("a")
+        url = f"https://news.google.com{link_tag['href'][1:]}" if link_tag else "#"
 
-        if not articles:
-            print(f"⚠️ No articles found for {topic}.")
-        else:
-            print(f"✅ Found {len(articles)} articles for '{topic}'")
+        # Fetch article content preview
+        snippet = ""
+        para = card.find("span")
+        if para:
+            snippet = para.get_text()
 
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Error fetching articles: {e}")
+        articles.append({
+            "title": title,
+            "url": url,
+            "content": snippet
+        })
 
+    print(f"✅ Scraped {len(articles)} articles for topic: {topic}")
     return articles
