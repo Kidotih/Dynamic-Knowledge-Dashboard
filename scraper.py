@@ -1,21 +1,24 @@
-# scraper.py
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, FeatureNotFound
 
 def scrape_articles(topic):
     """
     Fetch latest news articles from Google News RSS for a given topic.
     Returns a list of dicts: [{"title": ..., "content": ..., "url": ...}, ...]
     """
-    # Use Google News RSS (works even for dynamic topics)
     rss_url = f"https://news.google.com/rss/search?q={topic}"
-
     articles = []
+
     try:
         response = requests.get(rss_url, timeout=10)
         response.raise_for_status()
 
-        soup = BeautifulSoup(response.content, "xml")
+        # Try XML parser first, fallback to html.parser if not available
+        try:
+            soup = BeautifulSoup(response.content, "xml")
+        except FeatureNotFound:
+            soup = BeautifulSoup(response.content, "html.parser")
+
         items = soup.find_all("item")
 
         for item in items[:5]:  # Limit to top 5
