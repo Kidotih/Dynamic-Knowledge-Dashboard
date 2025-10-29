@@ -1,21 +1,35 @@
-# Dynamic Knowledge Dashboard
+# 🧠 Dynamic Knowledge Dashboard
 
-This is a Python/Streamlit app that scrapes, summarizes, and analyzes articles for any topic.
+> **Scrape, Summarize, and Visualize** trending topics — all in one place.  
+> Discover insights, analyze sentiment, and download comprehensive reports with ease.
 
-🌐 **Try the app online:** [Open Dashboard](https://kidotih-dynamic-knowledge-dashboard-app-16krab.streamlit.app)
+🌐 **Live Demo:** [Open Dashboard](https://kidotih-dynamic-knowledge-dashboard-app-16krab.streamlit.app)
 
+---
 
-## 🚀 Features
-- Web scraping and text summarization  
-- Keyword analysis and visualization  
-- Auto-saving reports for each run  
-- Ready for scheduling and automation  
+## 🚀 Overview
 
-## ⚙️ Setup
-```bash
-git clone https://github.com/Kidotih/dynamic-knowledge-dashboard.git
-cd dynamic-knowledge-dashboard
-python -m venv venv
-source venv/Scripts/activate   # Windows
-pip install -r requirements.txt
-python main.py
+The **Dynamic Knowledge Dashboard** is an intelligent data exploration app built with **Python + Streamlit**.  
+It scrapes live articles on any topic, summarizes content using NLP, performs sentiment analysis, extracts keywords, and visualizes insights with downloadable reports.
+
+Ideal for:
+- Researchers tracking emerging news trends  
+- Data analysts exploring sentiment across media  
+- Content creators summarizing topic coverage  
+
+---
+
+## ✨ Key Features
+
+✅ **Automated Web Scraping** — fetch trending articles in seconds  
+🧾 **Smart Summarization** — condense large texts using NLP  
+💭 **Sentiment Analysis** — detect emotional tone (Positive / Neutral / Negative)  
+🔠 **Keyword Extraction** — find recurring and relevant topic terms  
+📊 **Visual Reports** — keyword frequency and sentiment distribution  
+📁 **Downloadable Reports** — CSV + visual exports for offline use  
+🎨 **Modern Streamlit UI** — clean card layout with icons and color-coded visuals  
+
+---
+
+## 🧩 Project Structure
+
