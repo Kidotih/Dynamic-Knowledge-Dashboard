@@ -1,13 +1,17 @@
+# app.py
 import streamlit as st
 import os
 import datetime
 import urllib.parse
+from io import BytesIO
+import zipfile
 
 from scraper import scrape_articles
-from summarizer import summarize_articles  # ✅ includes sentiment now
+from summarizer import summarize_articles
 from analyzer import analyze_keywords
 from visualizer import plot_keywords, plot_sentiments
 from reporter import save_report
+from textblob import TextBlob
 
 # -------------------------------
 # Streamlit App Config
@@ -58,6 +62,23 @@ if run_dashboard:
         with st.spinner("🧾 Summarizing and analyzing sentiment..."):
             summaries = summarize_articles(articles)
 
+            for item in summaries:
+                summary_text = item.get("summary", "")
+                if summary_text:
+                    blob = TextBlob(summary_text)
+                    polarity = blob.sentiment.polarity
+                    if polarity > 0.1:
+                        sentiment = "Positive"
+                    elif polarity < -0.1:
+                        sentiment = "Negative"
+                    else:
+                        sentiment = "Neutral"
+                    item["sentiment"] = sentiment
+                    item["polarity"] = round(polarity, 3)
+                else:
+                    item["sentiment"] = "Neutral"
+                    item["polarity"] = 0.0
+
         # 3️⃣ Keyword Extraction
         with st.spinner("🔎 Extracting keywords..."):
             keywords = analyze_keywords(summaries)
@@ -67,12 +88,11 @@ if run_dashboard:
         # -------------------------------
         st.divider()
         st.subheader("📰 Latest Articles")
-
         for article in summaries:
             title = article.get("title", "Untitled")
             url = article.get("url", "#")
             summary = article.get("summary", "")
-            sentiment = article.get("sentiment", "N/A")
+            sentiment = article.get("sentiment", "Neutral")
             polarity = article.get("polarity", 0.0)
 
             st.markdown(f"### [{title}]({url})")
@@ -86,7 +106,6 @@ if run_dashboard:
         # -------------------------------
         if keywords:
             st.subheader("🔠 Top Keywords Extracted")
-
             cols = st.columns(2)
             for i, (word, freq) in enumerate(keywords):
                 encoded = urllib.parse.quote(word)
@@ -109,6 +128,15 @@ if run_dashboard:
         with st.spinner("💾 Generating reports..."):
             save_report(summaries, keywords, output_dir=data_dir)
 
+            # Zip the data folder for download
+            zip_buffer = BytesIO()
+            with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+                for foldername, subfolders, filenames in os.walk(data_dir):
+                    for filename in filenames:
+                        file_path = os.path.join(foldername, filename)
+                        zip_file.write(file_path, arcname=os.path.relpath(file_path, data_dir))
+            zip_buffer.seek(0)
+
         st.success("✅ Dashboard run complete!")
 
         # 📦 Aesthetic Download Card
@@ -121,7 +149,7 @@ if run_dashboard:
                     padding: 20px;
                     border-radius: 15px;
                     box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
-                    ">
+                ">
                     <h3 style="color:#0d6efd; margin-bottom:10px;">📂 Download Your Reports</h3>
                     <p style="color:#555; margin-bottom:15px;">
                         All processed data and visual insights are available for you to download below.
@@ -158,14 +186,13 @@ if run_dashboard:
                 st.markdown("### 🧠 Dashboard Data Folder")
                 st.caption("Contains visualizations and all exported results.")
                 st.download_button(
-                    label="📦 Open Data Directory",
-                    data="",
+                    label="📦 Download All Data as ZIP",
+                    data=zip_buffer,
                     file_name=f"{data_dir}.zip",
                     mime="application/zip",
                     use_container_width=True
                 )
 
         st.info(f"📁 Reports saved in: `{data_dir}`")
-
     else:
         st.warning("⚠️ Please enter a topic before running the dashboard.")
