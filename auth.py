@@ -14,6 +14,7 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 # -----------------------------------
 # Initialize Supabase client
 # -----------------------------------
+@st.cache_resource
 def init_connection() -> Client:
     """Initialize Supabase connection (from .env or Streamlit secrets)."""
     url = SUPABASE_URL or st.secrets.get("SUPABASE_URL")
@@ -27,7 +28,6 @@ def init_connection() -> Client:
 
 supabase = init_connection()
 
-
 # -----------------------------------
 # Authentication: Login
 # -----------------------------------
@@ -39,13 +39,11 @@ def login():
     if st.button("Login"):
         try:
             result = supabase.auth.sign_in_with_password({"email": email, "password": password})
-            # Convert Supabase User object to dict for safe session handling
             st.session_state["user"] = {"email": result.user.email, "id": result.user.id}
             st.success(f"Welcome back, {result.user.email}!")
             st.experimental_rerun()
         except Exception as e:
             st.error(f"Login failed: {e}")
-
 
 # -----------------------------------
 # Authentication: Signup
@@ -63,7 +61,6 @@ def signup():
             st.experimental_rerun()
         except Exception as e:
             st.error(f"Signup failed: {e}")
-
 
 # -----------------------------------
 # Guest Access
