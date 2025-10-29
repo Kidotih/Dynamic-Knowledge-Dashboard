@@ -64,13 +64,13 @@ def summarize_articles(articles):
             blob = TextBlob(clean_summary)
             polarity = blob.sentiment.polarity
             if polarity > 0.1:
-                sentiment_label = "Positive"
+                sentiment_label = "😊 Positive"
             elif polarity < -0.1:
-                sentiment_label = "Negative"
+                sentiment_label = "☹️ Negative"
             else:
-                sentiment_label = "Neutral"
+                sentiment_label = "😐 Neutral"
         else:
-            sentiment_label = "Neutral"
+            sentiment_label = "😐 Neutral"
             polarity = 0.0
 
         summarized.append({
