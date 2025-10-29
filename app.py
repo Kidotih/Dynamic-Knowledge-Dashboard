@@ -7,6 +7,7 @@ from visualizer import plot_keywords
 from reporter import save_report
 import os
 import datetime
+import urllib.parse
 
 # -------------------------------
 # Streamlit UI
@@ -44,10 +45,12 @@ if st.button("Run Dashboard"):
                     plot_path = plot_keywords(keywords, output_dir=data_dir)
                     st.image(plot_path, caption="Keyword Trends", use_container_width=True)
 
-                    # ✅ Display top keywords directly in the app
+                    # ✅ Display top keywords as clickable links
                     st.subheader("🔠 Top Keywords Extracted")
                     for word, freq in keywords:
-                        st.write(f"• **{word}** — {freq} occurrences")
+                        encoded_word = urllib.parse.quote(word)
+                        news_url = f"https://news.google.com/search?q={encoded_word}"
+                        st.markdown(f"• **[{word}]({news_url})** — {freq} occurrences")
 
             with st.spinner("💾 Saving report..."):
                 save_report(articles, keywords, output_dir=data_dir)
