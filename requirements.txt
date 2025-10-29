@@ -8,3 +8,5 @@ lxml
 textblob
 reportlab
 feedparser
+supabase
+python-dotenv
