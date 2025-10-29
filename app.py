@@ -1,8 +1,8 @@
 import os
 import streamlit as st
-from scraper import fetch_articles
+from scraper import scrape_articles          # ✅ updated
 from summarizer import summarize_articles
-from keywords import extract_keywords
+from analyzer import analyze_keywords        # ✅ replaced old 'keywords'
 from visualizer import plot_keywords, plot_sentiments
 from datetime import datetime
 from PIL import Image
@@ -18,7 +18,7 @@ topic = st.text_input("Enter a topic to explore (e.g., Artificial Intelligence, 
 if st.button("Analyze Topic") and topic:
     with st.spinner("Fetching and analyzing articles..."):
         # Fetch articles
-        articles = fetch_articles(topic)
+        articles = scrape_articles(topic)
         summaries = summarize_articles(articles)
 
         # Create output directory
@@ -27,7 +27,7 @@ if st.button("Analyze Topic") and topic:
         os.makedirs(output_dir, exist_ok=True)
 
         # Extract and visualize keywords
-        keywords = extract_keywords([s["summary"] for s in summaries])
+        keywords = analyze_keywords([s["summary"] for s in summaries])
         keyword_chart = plot_keywords(keywords, output_dir)
 
         # Sentiment visualization
