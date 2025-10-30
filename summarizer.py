@@ -12,8 +12,10 @@ import streamlit as st
 # -----------------------------------------
 @st.cache_resource
 def setup_nltk():
+    """Ensure required NLTK data is available in both local and deployed environments."""
     resources = {
         "punkt": "tokenizers/punkt",
+        "punkt_tab": "tokenizers/punkt_tab",
         "stopwords": "corpora/stopwords"
     }
     for package, path in resources.items():
