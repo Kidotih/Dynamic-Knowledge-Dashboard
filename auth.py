@@ -12,6 +12,13 @@ supabase = init_connection()
 # Load .env for local dev
 load_dotenv()
 
+SUPABASE_URL = os.getenv("SUPABASE_URL") or st.secrets.get("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY") or st.secrets.get("SUPABASE_KEY")
+
+if not SUPABASE_URL or not SUPABASE_KEY:
+    st.error("❌ Supabase credentials missing. Set them in .env locally or Streamlit Secrets in deployed app.")
+    st.stop()
+
 # -----------------------------------
 # Lazy Supabase Client
 # -----------------------------------
