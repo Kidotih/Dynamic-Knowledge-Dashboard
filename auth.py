@@ -5,39 +5,26 @@ from dotenv import load_dotenv
 
 from supabase_client import init_connection
 
-
-supabase = init_connection()
-
-
-# Load .env for local dev
+# Load .env for local development
 load_dotenv()
 
-SUPABASE_URL = os.getenv("SUPABASE_URL") or st.secrets.get("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY") or st.secrets.get("SUPABASE_KEY")
-
-if not SUPABASE_URL or not SUPABASE_KEY:
-    st.error("❌ Supabase credentials missing. Set them in .env locally or Streamlit Secrets in deployed app.")
-    st.stop()
+# Initialize Supabase connection
+supabase = init_connection()
 
 # -----------------------------------
 # Lazy Supabase Client
 # -----------------------------------
 @st.cache_resource
-def init_connection() -> Client:
+def supabase_client() -> Client:
     """Initialize Supabase client using secrets or .env"""
     url = os.getenv("SUPABASE_URL") or st.secrets.get("SUPABASE_URL")
     key = os.getenv("SUPABASE_KEY") or st.secrets.get("SUPABASE_KEY")
-
-    # Debug info
-    st.write("DEBUG: SUPABASE_URL =", url)
-    st.write("DEBUG: SUPABASE_KEY =", "<hidden>" if key else None)
 
     if not url or not key:
         st.error("❌ Supabase credentials missing. Set them in `.env` locally or Streamlit Secrets in deployed app.")
         st.stop()
 
     return create_client(url, key)
-
 
 # -----------------------------------
 # Authentication
@@ -75,3 +62,4 @@ def signup():
 def guest_access():
     """Set guest user in session."""
     st.session_state["user"] = {"guest": True}
+
