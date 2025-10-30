@@ -41,9 +41,10 @@ if user_info.get("guest", False):
     st.sidebar.info("👤 Guest Access")
 else:
     st.sidebar.success(f"✅ Logged in as {user_info.get('email')}")
-    if st.sidebar.button("Logout"):
-        st.session_state.clear()
-        st.experimental_rerun()
+if st.sidebar.button("Logout"):
+    st.session_state.clear()
+    st.rerun()
+
 
 # -------------------------------
 # Header
