@@ -3,7 +3,6 @@ import os
 import datetime
 import urllib.parse
 import shutil
-import zipfile
 
 from auth import login, signup
 from scraper import scrape_articles
@@ -13,7 +12,7 @@ from visualizer import plot_keywords, plot_sentiments
 from reporter import save_report
 
 # -------------------------------
-# Streamlit App Config
+# Streamlit Config
 # -------------------------------
 st.set_page_config(
     page_title="🧠 Dynamic Knowledge Dashboard",
@@ -98,16 +97,10 @@ if run_dashboard:
     st.divider()
     st.subheader("📰 Latest Articles")
     for a in summaries:
-        title = a.get("title", "Untitled")
-        url = a.get("url", "#")
-        summary = a.get("summary", "")
-        sentiment = a.get("sentiment", "N/A")
-        polarity = a.get("polarity", 0.0)
-
-        st.markdown(f"### [{title}]({url})")
-        st.markdown(f"**Sentiment:** {sentiment} ({polarity:.2f})")
+        st.markdown(f"### [{a.get('title','Untitled')}]({a.get('url','#')})")
+        st.markdown(f"**Sentiment:** {a.get('sentiment','N/A')} ({a.get('polarity',0.0):.2f})")
         with st.expander("📝 Read Summary"):
-            st.write(summary)
+            st.write(a.get("summary",""))
         st.markdown("---")
 
     # -------------------------------
@@ -132,7 +125,7 @@ if run_dashboard:
         st.warning("No meaningful keywords found.")
 
     # -------------------------------
-    # Save & Download
+    # Save & Download Section
     # -------------------------------
     if user_info.get("guest", False):
         st.info("Guest users cannot download reports.")
@@ -141,7 +134,6 @@ if run_dashboard:
             save_report(summaries, keywords, output_dir=data_dir)
 
         st.success("✅ Dashboard run complete!")
-
         st.divider()
         st.markdown(f"📁 Reports saved in: `{data_dir}`")
         col_a, col_b, col_c = st.columns(3)

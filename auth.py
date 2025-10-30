@@ -4,34 +4,43 @@ from dotenv import load_dotenv
 from supabase import create_client, Client
 
 # -----------------------------------
-# Load environment variables
+# Load environment variables from .env
 # -----------------------------------
-load_dotenv()
-
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
+load_dotenv(dotenv_path)
 
 # -----------------------------------
 # Initialize Supabase client
 # -----------------------------------
 @st.cache_resource
 def init_connection() -> Client:
-    """Initialize Supabase connection (from .env or Streamlit secrets)."""
-    url = SUPABASE_URL or st.secrets.get("SUPABASE_URL")
-    key = SUPABASE_KEY or st.secrets.get("SUPABASE_KEY")
+    """
+    Initialize Supabase connection.
+    Prefers Streamlit secrets in deployed environment, falls back to .env locally.
+    """
+    # First try Streamlit secrets (deployed environment)
+    url = st.secrets.get("SUPABASE_URL", None)
+    key = st.secrets.get("SUPABASE_KEY", None)
 
-    # Debug prints
+    # Fallback to .env locally
+    if not url:
+        url = os.getenv("SUPABASE_URL")
+    if not key:
+        key = os.getenv("SUPABASE_KEY")
+
+    # Debug info
     st.write("DEBUG: SUPABASE_URL =", url)
-    st.write("DEBUG: SUPABASE_KEY =", key)
+    st.write("DEBUG: SUPABASE_KEY =", "<hidden>" if key else None)
 
     if not url or not key:
-        st.error("❌ Supabase credentials missing. Please set them in .env or Streamlit Secrets.")
+        st.error("❌ Supabase credentials missing. Set them in `.env` locally or Streamlit Secrets in deployed app.")
         st.stop()
 
     return create_client(url, key)
 
 # Initialize Supabase client
 supabase = init_connection()
+
 
 # -----------------------------------
 # Authentication: Login
@@ -50,6 +59,7 @@ def login():
         except Exception as e:
             st.error(f"Login failed: {e}")
 
+
 # -----------------------------------
 # Authentication: Signup
 # -----------------------------------
@@ -66,6 +76,7 @@ def signup():
             st.experimental_rerun()
         except Exception as e:
             st.error(f"Signup failed: {e}")
+
 
 # -----------------------------------
 # Guest Access
