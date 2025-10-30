@@ -16,13 +16,19 @@ load_dotenv()
 # -----------------------------------
 @st.cache_resource
 def init_connection() -> Client:
-    """Initialize Supabase client using secrets or .env"""
-    url = os.getenv("SUPABASE_URL") or st.secrets.get("SUPABASE_URL")
-    key = os.getenv("SUPABASE_KEY") or st.secrets.get("SUPABASE_KEY")
+    """
+    Initialize Supabase connection.
+    Prefers Streamlit secrets in deployed environment, falls back to .env locally.
+    """
+    # Try Streamlit secrets first (for deployed app)
+    url = st.secrets.get("SUPABASE_URL", None)
+    key = st.secrets.get("SUPABASE_KEY", None)
 
-    # Debug info
-    st.write("DEBUG: SUPABASE_URL =", url)
-    st.write("DEBUG: SUPABASE_KEY =", "<hidden>" if key else None)
+    # Fallback to .env (for local development)
+    if not url:
+        url = os.getenv("SUPABASE_URL")
+    if not key:
+        key = os.getenv("SUPABASE_KEY")
 
     if not url or not key:
         st.error("❌ Supabase credentials missing. Set them in `.env` locally or Streamlit Secrets in deployed app.")
@@ -30,11 +36,6 @@ def init_connection() -> Client:
 
     return create_client(url, key)
 
-def supabase_client() -> Client:
-    """Lazy load Supabase client"""
-    if "supabase" not in st.session_state:
-        st.session_state["supabase"] = init_connection()
-    return st.session_state["supabase"]
 
 # -----------------------------------
 # Authentication
