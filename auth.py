@@ -3,6 +3,11 @@ import streamlit as st
 from supabase import create_client, Client
 from dotenv import load_dotenv
 
+from supabase_client import init_connection
+
+supabase = init_connection()
+
+
 # Load .env for local dev
 load_dotenv()
 
