@@ -12,11 +12,11 @@ import streamlit as st
 # -----------------------------------------
 @st.cache_resource
 def setup_nltk():
-    """Ensure required NLTK data is available in both local and deployed environments."""
+    """Download required NLTK data if missing (safe for deployment)."""
     resources = {
         "punkt": "tokenizers/punkt",
         "punkt_tab": "tokenizers/punkt_tab",
-        "stopwords": "corpora/stopwords"
+        "stopwords": "corpora/stopwords",
     }
     for package, path in resources.items():
         try:
@@ -30,7 +30,6 @@ setup_nltk()
 # Text Cleaning
 # -----------------------------------------
 def clean_text(text):
-    """Remove HTML tags and normalize whitespace."""
     text = re.sub(r"<.*?>", "", text)
     text = re.sub(r"\s+", " ", text)
     return text.strip()
@@ -39,10 +38,9 @@ def clean_text(text):
 # Summarization
 # -----------------------------------------
 def summarize_text(text, max_sentences=3):
-    """Generate a concise summary from text using word frequency."""
     text = clean_text(text)
     if not text or len(text.split()) < 50:
-        return text  # Skip summarizing very short content
+        return text
 
     stop_words = set(stopwords.words("english"))
     words = word_tokenize(text.lower())
@@ -80,7 +78,6 @@ def summarize_articles(articles):
         summary = summarize_text(raw_content)
         clean_summary = clean_text(summary)
 
-        # Sentiment analysis
         if clean_summary:
             blob = TextBlob(clean_summary)
             polarity = blob.sentiment.polarity
