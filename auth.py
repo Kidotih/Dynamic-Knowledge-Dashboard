@@ -1,3 +1,4 @@
+# auth.py
 import os
 import streamlit as st
 from dotenv import load_dotenv
@@ -20,15 +21,14 @@ def init_connection() -> Client:
     url = SUPABASE_URL or st.secrets.get("SUPABASE_URL")
     key = SUPABASE_KEY or st.secrets.get("SUPABASE_KEY")
 
-    # Debug prints
-    st.write("DEBUG: SUPABASE_URL =", url)
-    st.write("DEBUG: SUPABASE_KEY =", key)
-
     if not url or not key:
         st.error("❌ Supabase credentials missing. Please set them in .env or Streamlit Secrets.")
         st.stop()
 
     return create_client(url, key)
+
+# Actually initialize the client globally
+supabase = init_connection()
 
 # -----------------------------------
 # Authentication: Login
