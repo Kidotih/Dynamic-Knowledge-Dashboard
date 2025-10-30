@@ -4,7 +4,6 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 
 from supabase_client import init_connection
-from supabase_client import supabase_client
 
 
 supabase = init_connection()
