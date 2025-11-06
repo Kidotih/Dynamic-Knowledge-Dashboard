@@ -6,6 +6,10 @@
 🌐 **Live Demo:** [Open Dashboard](https://kidotih-dynamic-knowledge-dashboard-app-16krab.streamlit.app)
 
 ---
+## 📊 Dashboard Preview
+
+![Dashboard Screenshot](assets/dashboard_preview.jpg)
+ ----
 
 ## 🚀 Overview
 
