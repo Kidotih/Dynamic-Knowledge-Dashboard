@@ -9,6 +9,23 @@
 ## 📊 Dashboard Preview
 
 ![Dashboard Screenshot](assets/dashboard_preview.jpg)
+
+## 📸 Screenshots
+
+### 🔐 Login & Signup
+![Login](assets/login.png)
+![Signup](assets/signup.png)
+
+### 🕸️ Data Scraping
+![Scraped Data](assets/datascraped.png)
+
+### 🧮 Reports & Analysis
+![Report](assets/report.png)
+![Top Keywords](assets/topkeywords.png)
+
+### 📊 Data Distribution Chart
+![Distribution](assets/distribution.png)
+
  ----
 
 ## 🚀 Overview
