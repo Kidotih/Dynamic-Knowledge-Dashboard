@@ -10,10 +10,10 @@ def scrape_articles(topic, limit=10):
     
     query = topic.replace(" ", "+")
     
-    # Updated RSS format (Google changed this recently)
+    # FIXED: latest Google News RSS format
     feed_url = (
-        f"https://news.google.com/rss/search?q={query}"
-        "&hl=en-US&gl=US&ceid=US:en"
+        f"https://news.google.com/rss/search?"
+        f"tbm=nws&hl=en-US&gl=US&ceid=US:en&q={query}"
     )
 
     articles = []
@@ -32,7 +32,8 @@ def scrape_articles(topic, limit=10):
 
         # Fetch full article content
         try:
-            response = requests.get(url, timeout=5)
+            headers = {"User-Agent": "Mozilla/5.0"}  # avoids cloud blocking
+            response = requests.get(url, headers=headers, timeout=5)
             soup = BeautifulSoup(response.text, "html.parser")
             paragraphs = [p.get_text() for p in soup.find_all("p")]
             content = " ".join(paragraphs)
@@ -46,7 +47,7 @@ def scrape_articles(topic, limit=10):
             "content": content,
             "published": published,
             "source": source,
-            "image": None  # reserved for the next upgrade
+            "image": None
         })
 
     print(f"✅ Found {len(articles)} articles.")
