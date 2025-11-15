@@ -5,7 +5,7 @@ import urllib.parse
 import shutil
 import requests
 import feedparser
-from bs4 import BeautifulSoup4
+from bs4 import BeautifulSoup
 
 
 from auth import login, signup
