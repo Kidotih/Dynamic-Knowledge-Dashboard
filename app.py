@@ -3,6 +3,10 @@ import os
 import datetime
 import urllib.parse
 import shutil
+import requests
+import feedparser
+from bs4 import BeautifulSoup
+
 
 from auth import login, signup
 from scraper import scrape_articles
@@ -78,11 +82,55 @@ if run_dashboard:
     os.makedirs(data_dir, exist_ok=True)
 
     # 1️⃣ Scraping
-    with st.spinner("🔍 Fetching recent articles..."):
-        articles = scrape_articles(topic)
-    if not articles:
-        st.warning("No articles found.")
+    # 1️⃣ Scraping (deployment-safe)
+with st.spinner("🔍 Fetching recent articles..."):
+    # Format the topic for URL
+    query = topic.replace(" ", "+")
+    feed_url = f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:US"
+
+    headers = {"User-Agent": "Mozilla/5.0"}  # Google requires browser-like headers
+    try:
+        response = requests.get(feed_url, headers=headers, timeout=10)
+        response.raise_for_status()
+        feed = feedparser.parse(response.text)
+    except Exception as e:
+        st.warning(f"⚠ Failed to fetch RSS feed: {e}")
         st.stop()
+
+    if not feed.entries:
+        st.warning(f"No articles found for topic '{topic}'. Try another keyword or region.")
+        st.stop()
+
+    # Process entries
+    articles = []
+    for entry in feed.entries[:10]:  # Limit to 10 articles
+        title = entry.title
+        url = entry.link
+        summary = entry.get("summary", "")
+        published = entry.get("published", "")
+        source = getattr(entry, "source", {}).get("title", "") or url.split("/")[2]
+
+        # Optional: fetch full content
+        content = summary
+        try:
+            art_resp = requests.get(url, headers=headers, timeout=5)
+            soup = BeautifulSoup(art_resp.text, "html.parser")
+            paragraphs = [p.get_text() for p in soup.find_all("p")]
+            if paragraphs:
+                content = " ".join(paragraphs)
+        except:
+            content = summary
+
+        articles.append({
+            "title": title,
+            "url": url,
+            "summary": summary,
+            "content": content,
+            "published": published,
+            "source": source,
+            "image": None
+        })
+
 
     # 2️⃣ Summarizing + Sentiment
     with st.spinner("🧾 Summarizing and analyzing sentiment..."):
